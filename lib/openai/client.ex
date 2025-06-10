@@ -3,7 +3,10 @@ defmodule OpenAI.Client do
   alias OpenAI.{Config, Stream}
   use HTTPoison.Base
 
-  def process_url(url), do: Config.api_url() <> url
+  def make_url(url, config) do
+    IO.inspect {:make, url, config}
+    (config.api_url || Config.api_url()) <> url
+  end
 
   def process_response_body(body) do
     try do
@@ -114,7 +117,7 @@ defmodule OpenAI.Client do
       |> request_options()
       |> query_params(params)
 
-    url
+    make_url(url, config)
     |> get(request_headers(config), request_options)
     |> handle_response()
   end
@@ -128,12 +131,12 @@ defmodule OpenAI.Client do
     case params |> Keyword.get(:stream, false) do
       true ->
         Stream.new(fn ->
-          url
+          make_url(url, config)
           |> post(body, request_headers(config), stream_request_options(config))
         end)
 
       false ->
-        url
+        make_url(url, config)
         |> post(body, request_headers(config), request_options(config))
         |> handle_response()
     end
@@ -150,13 +153,13 @@ defmodule OpenAI.Client do
       ] ++ body_params
     }
 
-    url
+    make_url(url, config)
     |> post(body, request_headers(config), request_options(config))
     |> handle_response()
   end
 
   def api_delete(url, config) do
-    url
+    make_url(url, config)
     |> delete(request_headers(config), request_options(config))
     |> handle_response()
   end
