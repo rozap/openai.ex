@@ -4,7 +4,6 @@ defmodule OpenAI.Client do
   use HTTPoison.Base
 
   def make_url(url, config) do
-    IO.inspect {:make, url, config}
     (config.api_url || Config.api_url()) <> url
   end
 
